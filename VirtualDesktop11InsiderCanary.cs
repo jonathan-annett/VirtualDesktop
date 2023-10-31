@@ -906,6 +906,10 @@ namespace VDeskTool
 
 							case "SWITCH": // switch to desktop in rc
 							case "S":
+								if (VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current) == rc) {
+									if (verbose) Console.Write("Already on virtual desktop number " + rc.ToString());
+									break;
+								}
 								if (verbose) Console.Write("Switching to virtual desktop number " + rc.ToString());
 								try
 								{ // activate virtual desktop rc
@@ -1227,6 +1231,75 @@ namespace VDeskTool
 
 							case "SWITCH": // switch to desktop
 							case "S":
+								if (int.TryParse(groups[2].Value, out iParam))
+								{ // parameter is an integer, use as desktop number
+									if ((iParam >= 0) && (iParam < VirtualDesktop.Desktop.Count))
+									{ // check if parameter is in range of active desktops
+										rc = iParam;
+										if (VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current) == rc) {
+											if (verbose) Console.Write("Already on virtual desktop number " + rc.ToString());
+											break;
+										}
+										if (verbose) Console.WriteLine("Switching to virtual desktop number " + rc.ToString() + " (desktop '" + VirtualDesktop.Desktop.DesktopNameFromIndex(iParam) + "')");
+										try
+										{ // activate virtual desktop iParam
+											VirtualDesktop.Desktop.FromIndex(rc).MakeVisible();
+										}
+										catch
+										{ // error while activating
+											rc = -1;
+										}
+									}
+									else
+										rc = -1;
+								}
+								else
+								{ // parameter is a string, search as part of desktop name
+									iParam = VirtualDesktop.Desktop.SearchDesktop(groups[2].Value);
+									if (iParam >= 0)
+									{ // desktop found
+										rc = iParam;
+										rc = iParam;
+										if (VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current) == rc) {
+											if (verbose) Console.Write("Already on virtual desktop number " + rc.ToString());
+											break;
+										}
+										if (verbose) Console.WriteLine("Switching to virtual desktop number " + rc.ToString() + " (desktop '" + VirtualDesktop.Desktop.DesktopNameFromIndex(rc) + "')");
+										
+										try
+										{ // activate virtual desktop iParam
+											VirtualDesktop.Desktop.FromIndex(rc).MakeVisible();
+										}
+										catch
+										{ // error while activating
+											rc = -1;
+										}
+									}
+									else
+									{ // no desktop found
+										if ((groups[2].Value.ToUpper() == "LAST") || (groups[2].Value.ToUpper() == "*LAST*"))
+										{ // last desktop
+											iParam = VirtualDesktop.Desktop.Count - 1;
+											if (verbose) Console.WriteLine("Switching to virtual desktop number " + iParam.ToString() + " (desktop '" + VirtualDesktop.Desktop.DesktopNameFromIndex(iParam) + "')");
+											rc = iParam;
+											try
+											{ // activate virtual desktop iParam
+												VirtualDesktop.Desktop.FromIndex(iParam).MakeVisible();
+											}
+											catch
+											{ // error while activating
+												rc = -1;
+											}
+										}
+										else
+										{ // no desktop found
+											if (verbose) Console.WriteLine("Could not find virtual desktop with name containing '" + groups[2].Value + "'");
+											rc = -2;
+										}
+									}
+								}
+								break;
+
 								if (int.TryParse(groups[2].Value, out iParam))
 								{ // parameter is an integer, use as desktop number
 									if ((iParam >= 0) && (iParam < VirtualDesktop.Desktop.Count))
@@ -2629,6 +2702,15 @@ namespace VDeskTool
 						if (((token.Length >= 7) && (token.Substring(0, 7) == "SWITCH:")) ||
 							((token.Length >= 2) && (token.Substring(0, 2) == "S:")))
 						{
+							if (splits.Length>1) {
+								int ix = 1;
+								while (ix<splits.Length) {
+									token = token + " " +splits[ix];
+									ix ++;
+								}
+								splits="x".Split(' ');
+								splits[0]=token;
+							}
 							lastDT = -1;// force a reporting of the desktop, even if the switched to desktop is the same as the current desktop
 						}
 
