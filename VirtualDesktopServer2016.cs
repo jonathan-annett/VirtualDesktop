@@ -2278,6 +2278,12 @@ namespace VDeskTool
 
 			int lastDT = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current);
 			bool interactive = true;
+
+			sListDesktopPrefix = "[";
+			sListDesktopLine1Prefix = "";
+			sListDesktopLine2PlusPrefix = ",";
+			sListDesktopSuffix = "]";
+
 			try
 			{
 				bool test = Console.KeyAvailable;
@@ -2398,10 +2404,17 @@ namespace VDeskTool
 							case "INTERACTIVE":// prevent recursion
 							case "INT":// prevent recursion
 
+							// various commands not valid in interactive mode
+							case "QUIET":  
+							case "Q":
+							case "VERBOSE": 
+							case "V":
 							case "BREAK":
 							case "B":
 							case "CONTINUE":
 							case "CO":
+							case "WAITKEY": 
+							case "WK":
 
 								Console.WriteLine("\n{\"error\":" + serializer.Serialize("Invalid Command:" + splits[0]) + "}");
 								continue;
@@ -2501,10 +2514,17 @@ namespace VDeskTool
 					}
 				}
 			}
+			
+			sListDesktopPrefix = "";
+			sListDesktopLine1Prefix = "";
+			sListDesktopLine2PlusPrefix = "\n";
+			sListDesktopSuffix = "";
+
 			return 0;
 
 		}
 
+		
 		static int JSONListing()
 		{
 			var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
@@ -2617,12 +2637,19 @@ namespace VDeskTool
 		}
 
 		private static int iListDesktop;
-
+		private static string sListDesktopPrefix = "";
+		private static string sListDesktopLinePrefix = "";
+		private static string sListDesktopLine1Prefix = "";
+		private static string sListDesktopLine2PlusPrefix = "\n";
+		private static string sListDesktopSuffix = "";
 		private static bool EnumWindowsProcToList(IntPtr hWnd, int lParam)
 		{
 			try {
 				int iDesktopIndex = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.FromWindow(hWnd));
-				if (iDesktopIndex == iListDesktop) Console.WriteLine(hWnd.ToInt32());
+				if (iDesktopIndex == iListDesktop) {
+					Console.Write(sListDesktopLinePrefix+hWnd.ToInt32());
+					sListDesktopLinePrefix=sListDesktopLine2PlusPrefix;
+				} 
 			}
 			catch { }
 
@@ -2633,9 +2660,13 @@ namespace VDeskTool
 		{
 			iListDesktop = DesktopIndex;
 			EnumDelegate enumfunc = new EnumDelegate(EnumWindowsProcToList);
-
+			Console.Write(sListDesktopPrefix);
+			sListDesktopLinePrefix=sListDesktopLine1Prefix;
 			EnumDesktopWindows(IntPtr.Zero, enumfunc, IntPtr.Zero);
+			Console.WriteLine(sListDesktopSuffix);
 		}
+
+
 
 		private static int iCloseDesktop;
 
