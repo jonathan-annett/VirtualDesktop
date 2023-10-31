@@ -977,7 +977,7 @@ namespace VDeskTool
 									{
 										int thisDT = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current);
 										if (lastDT != thisDT) {
-											Console.WriteLine("{\"visibleIndex\":" + thisDT + ",\"visible\":" + serializer.Serialize(VirtualDesktop.Desktop.DesktopNameFromIndex(thisDT)) + "}");
+											Console.WriteLine("{\"visibleIndex\":" + thisDT + ",\"visible\":" + serializer.Serialize(VirtualDesktop.Desktop.DesktopNameFromIndex(thisDT)) +  ",\"count\":"+VirtualDesktop.Desktop.Count+  "}");
 											lastDT = thisDT;
 										} else {
 											System.Threading.Thread.Sleep(5);
@@ -1101,7 +1101,6 @@ namespace VDeskTool
 												case "NEW":
 												case "N":
 													Main(("S:" + rc).Split(' '));
-													Console.WriteLine("{\"count\":"+VirtualDesktop.Desktop.Count+"}");
 													break;
 											}
 											
