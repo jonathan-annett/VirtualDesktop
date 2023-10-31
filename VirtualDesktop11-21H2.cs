@@ -769,8 +769,6 @@ namespace VDeskTool
 				return -2;
 			}
 
-			var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-
 			foreach (string arg in args)
 			{
 				System.Text.RegularExpressions.GroupCollection groups = System.Text.RegularExpressions.Regex.Match(arg, @"^[-\/]?([^:=]+)[:=]?(.*)$").Groups;
@@ -857,7 +855,7 @@ namespace VDeskTool
 								}
 								if (verbose) Console.WriteLine("\nCount of desktops: " + desktopCount);
 								break;
-								
+
 							case "JSON":
 								JSONListing();
 								break;
