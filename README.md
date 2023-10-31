@@ -3,7 +3,10 @@ C# command line tool to manage virtual desktops in Windows 10 and Windows 11
 
 **a fork of [VirtualDesktop by MScholtes](https://github.com/MScholtes/VirtualDesktop);**
 
- Changes introduced
+This fork was made specifically for use with [virtual-desktop-node](https://github.com/jonathan-annett/virtual-desktop-node) which is in turn used by [sophtwhere-virtual-desktop](https://github.com/jonathan-annett/companion-module-sophtwhere-virtual-desktop) ( a bitfocus companion module, for allowing desktop switching with elgato streamdeck under companion)
+
+
+ Changes introduced in this fork
 
   - aliases `/NEXT` to `/RIGHT` and `/PREVIOUS` to `/LEFT`
 
@@ -20,20 +23,20 @@ C# command line tool to manage virtual desktops in Windows 10 and Windows 11
     * can be used for testing, but mainly implemented to allow [node.js modules](https://github.com/jonathan-annett/virtual-desktop-node) to use it
     * any changes that occur via keyboard/or other desktop managers are reported in JSON format:
        
-       ```{"visibleIndex":2,"visible":"Desktop 3"}```
-    * accepts all commands that can be used from the command line (ignores `/BREAK` and /`CONTINUE`, and `/INTERACTIVE`)
+       ```{"visibleIndex":2,"visible":"Desktop 3","count":4}```
+    * accepts all commands that can be used from the command line (ignores commands not appropriate for interactive mode)
 
-    * implements `/NAMES`, which is a JSON version of `/LIST` (only supported in interactive mode)
+    * implements `NAMES`, which is a JSON version of `/LIST` (only supported in interactive mode)
 
-    * turns off `/VERBOSE` mode
+    * turns off `VERBOSE` mode, doesn't allow you to change this while in interactive mode
 
-    * `/NEW` will switch to the newly created desktop automatically
+    * `NEW` will switch to the newly created desktop automatically
 
-    * gives JSON responses to `/LEFT`, `/RIGHT`, `/NEXT`, `/PREVIOUS`, `/GCD`, `/NAMES`, `/NEW` (basically any command the in)
+    * gives JSON responses to `LEFT`, `RIGHT`, `NEXT`, `PREVIOUS`, `GCD`, `NAMES`, `NEW`, `LWOD`  
 
     * valid JSON responses will always be on their own line (preceded by and followed by \n)
 
-    * doesn't filter out non-JSON responses, so anything reading piped output needs to keep this in mind.
+    * doesn't filter out non-JSON responses (eg from `/LIST`), so anything reading piped output needs to keep this in mind.
 
 
 original readme follows:
