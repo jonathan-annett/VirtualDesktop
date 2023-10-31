@@ -13,16 +13,16 @@ using System.Threading;
 
 // set attributes
 using System.Reflection;
-[assembly:AssemblyTitle("Command line tool to manage virtual desktops")]
-[assembly:AssemblyDescription("Command line tool to manage virtual desktops")]
-[assembly:AssemblyConfiguration("")]
-[assembly:AssemblyCompany("MS")]
-[assembly:AssemblyProduct("VirtualDesktop")]
-[assembly:AssemblyCopyright("� Markus Scholtes 2023")]
-[assembly:AssemblyTrademark("")]
-[assembly:AssemblyCulture("")]
-[assembly:AssemblyVersion("1.16.0.0")]
-[assembly:AssemblyFileVersion("1.16.0.0")]
+[assembly: AssemblyTitle("Command line tool to manage virtual desktops")]
+[assembly: AssemblyDescription("Command line tool to manage virtual desktops")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("MS")]
+[assembly: AssemblyProduct("VirtualDesktop")]
+[assembly: AssemblyCopyright("� Markus Scholtes 2023")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+[assembly: AssemblyVersion("1.16.0.0")]
+[assembly: AssemblyFileVersion("1.16.0.0")]
 
 // Based on http://stackoverflow.com/a/32417530, Windows 10 SDK, github project Grabacr07/VirtualDesktop and own research
 
@@ -158,24 +158,24 @@ namespace VirtualDesktop
 		string GetName();
 	}
 
-/*
-IVirtualDesktop2 not used now (available since Win 10 2004), instead reading names out of registry for compatibility reasons
-Excample code:
-IVirtualDesktop2 ivd2;
-string desktopName;
-ivd2.GetName(out desktopName);
-Console.WriteLine("Name of desktop: " + desktopName);
+	/*
+	IVirtualDesktop2 not used now (available since Win 10 2004), instead reading names out of registry for compatibility reasons
+	Excample code:
+	IVirtualDesktop2 ivd2;
+	string desktopName;
+	ivd2.GetName(out desktopName);
+	Console.WriteLine("Name of desktop: " + desktopName);
 
-	[ComImport]
-	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-	[Guid("31EBDE3F-6EC3-4CBD-B9FB-0EF6D09B41F4")]
-	internal interface IVirtualDesktop2
-	{
-		bool IsViewVisible(IApplicationView view);
-		Guid GetId();
-		void GetName([MarshalAs(UnmanagedType.HString)] out string name);
-	}
-*/
+		[ComImport]
+		[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+		[Guid("31EBDE3F-6EC3-4CBD-B9FB-0EF6D09B41F4")]
+		internal interface IVirtualDesktop2
+		{
+			bool IsViewVisible(IApplicationView view);
+			Guid GetId();
+			void GetName([MarshalAs(UnmanagedType.HString)] out string name);
+		}
+	*/
 
 	[ComImport]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -228,7 +228,7 @@ Console.WriteLine("Name of desktop: " + desktopName);
 	internal interface IObjectArray
 	{
 		void GetCount(out int count);
-		void GetAt(int index, ref Guid iid, [MarshalAs(UnmanagedType.Interface)]out object obj);
+		void GetAt(int index, ref Guid iid, [MarshalAs(UnmanagedType.Interface)] out object obj);
 	}
 
 	[ComImport]
@@ -259,7 +259,7 @@ Console.WriteLine("Name of desktop: " + desktopName);
 		internal static IVirtualDesktopPinnedApps VirtualDesktopPinnedApps;
 
 		internal static IVirtualDesktop GetDesktop(int index)
-		{	// get desktop with index
+		{   // get desktop with index
 			int count = VirtualDesktopManagerInternal.GetCount(IntPtr.Zero);
 			if (index < 0 || index >= count) throw new ArgumentOutOfRangeException("index");
 			IObjectArray desktops;
@@ -281,7 +281,8 @@ Console.WriteLine("Name of desktop: " + desktopName);
 			{
 				desktops.GetAt(i, typeof(IVirtualDesktop).GUID, out objdesktop);
 				if (IdSearch.CompareTo(((IVirtualDesktop)objdesktop).GetId()) == 0)
-				{ index = i;
+				{
+					index = i;
 					break;
 				}
 			}
@@ -332,7 +333,7 @@ Console.WriteLine("Name of desktop: " + desktopName);
 
 		// try to set foreground window
 		[DllImport("user32.dll")]
-		[return: MarshalAs(UnmanagedType.Bool)]static extern bool SetForegroundWindow(IntPtr hWnd);
+		[return: MarshalAs(UnmanagedType.Bool)] static extern bool SetForegroundWindow(IntPtr hWnd);
 
 		// send message to window
 		[DllImport("user32.dll")]
@@ -392,7 +393,8 @@ Console.WriteLine("Name of desktop: " + desktopName);
 
 			// read desktop name in registry
 			string desktopName = null;
-			try {
+			try
+			{
 				desktopName = (string)Microsoft.Win32.Registry.GetValue("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VirtualDesktops\\Desktops\\{" + guid.ToString() + "}", "Name", null);
 			}
 			catch { }
@@ -411,7 +413,8 @@ Console.WriteLine("Name of desktop: " + desktopName);
 
 			// read desktop name in registry
 			string desktopName = null;
-			try {
+			try
+			{
 				desktopName = (string)Microsoft.Win32.Registry.GetValue("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VirtualDesktops\\Desktops\\{" + guid.ToString() + "}", "Name", null);
 			}
 			catch { }
@@ -430,7 +433,8 @@ Console.WriteLine("Name of desktop: " + desktopName);
 
 			// read desktop name in registry
 			string desktopName = null;
-			try {
+			try
+			{
 				desktopName = (string)Microsoft.Win32.Registry.GetValue("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VirtualDesktops\\Desktops\\{" + guid.ToString() + "}", "Name", null);
 			}
 			catch { }
@@ -449,7 +453,8 @@ Console.WriteLine("Name of desktop: " + desktopName);
 			for (int i = 0; i < DesktopManager.VirtualDesktopManagerInternal.GetCount(IntPtr.Zero); i++)
 			{ // loop through all virtual desktops and compare partial name to desktop name
 				if (DesktopNameFromIndex(i).ToUpper().IndexOf(partialName.ToUpper()) >= 0)
-				{ index = i;
+				{
+					index = i;
 					break;
 				}
 			}
@@ -488,10 +493,10 @@ Console.WriteLine("Name of desktop: " + desktopName);
 		{ // remove all desktops but visible
 			int desktopcount = DesktopManager.VirtualDesktopManagerInternal.GetCount(IntPtr.Zero);
 			int desktopcurrent = DesktopManager.GetDesktopIndex(DesktopManager.VirtualDesktopManagerInternal.GetCurrentDesktop(IntPtr.Zero));
-			
-			if (desktopcurrent < desktopcount-1)
+
+			if (desktopcurrent < desktopcount - 1)
 			{ // remove all desktops "right" from current
-				for (int i = desktopcount-1; i > desktopcurrent; i--)
+				for (int i = desktopcount - 1; i > desktopcurrent; i--)
 					DesktopManager.VirtualDesktopManagerInternal.RemoveDesktop(DesktopManager.GetDesktop(i), DesktopManager.VirtualDesktopManagerInternal.GetCurrentDesktop(IntPtr.Zero));
 			}
 			if (desktopcurrent > 0)
@@ -585,7 +590,8 @@ Console.WriteLine("Name of desktop: " + desktopName);
 			{ // window of other process
 				IApplicationView view;
 				DesktopManager.ApplicationViewCollection.GetViewForHwnd(hWnd, out view);
-				try {
+				try
+				{
 					DesktopManager.VirtualDesktopManagerInternal.MoveViewToDesktop(view, ivd);
 				}
 				catch
@@ -691,7 +697,7 @@ Console.WriteLine("Name of desktop: " + desktopName);
 			{
 				StringBuilder sb = new StringBuilder(length + 1);
 				if (GetWindowText((IntPtr)hWnd, sb, sb.Capacity) > 0)
-				{ WindowInformationList.Add(new WindowInformation {Handle = hWnd, Title = sb.ToString()}); }
+				{ WindowInformationList.Add(new WindowInformation { Handle = hWnd, Title = sb.ToString() }); }
 			}
 			return true;
 		}
@@ -720,12 +726,14 @@ Console.WriteLine("Name of desktop: " + desktopName);
 namespace VDeskTool
 {
 
-		class Reader {
+	class Reader
+	{
 		private static Thread inputThread;
 		private static AutoResetEvent getInput, gotInput;
 		private static string input;
 
-		static Reader() {
+		static Reader()
+		{
 			getInput = new AutoResetEvent(false);
 			gotInput = new AutoResetEvent(false);
 			inputThread = new Thread(reader);
@@ -733,22 +741,25 @@ namespace VDeskTool
 			inputThread.Start();
 		}
 
-		private static void reader() {
-			while (true) {
-			getInput.WaitOne();
-			input = Console.ReadLine();
-			gotInput.Set();
+		private static void reader()
+		{
+			while (true)
+			{
+				getInput.WaitOne();
+				input = Console.ReadLine();
+				gotInput.Set();
 			}
 		}
 
 		// omit the parameter to read a line without a timeout
-		public static string ReadLine(int timeOutMillisecs = Timeout.Infinite) {
+		public static string ReadLine(int timeOutMillisecs = Timeout.Infinite)
+		{
 			getInput.Set();
 			bool success = gotInput.WaitOne(timeOutMillisecs);
 			if (success)
-			return input;
+				return input;
 			else
-			throw new TimeoutException("User did not provide input within the timelimit.");
+				throw new TimeoutException("User did not provide input within the timelimit.");
 		}
 	}
 
@@ -784,7 +795,7 @@ namespace VDeskTool
 					if (groups[2].Value == "")
 					{ // parameter without value
 						string upperToken = groups[1].Value.ToUpper();
-						switch(upperToken)
+						switch (upperToken)
 						{
 							case "HELP": // help screen
 							case "H":
@@ -852,263 +863,13 @@ namespace VDeskTool
 								if (verbose) Console.WriteLine("\nCount of desktops: " + desktopCount);
 								break;
 							case "JSON":
-
-							    desktopCount = VirtualDesktop.Desktop.Count;
-							    visibleDesktop = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current);
-								
-
-								Console.Write("{");
-								Console.Write("\"count\":"+desktopCount+",");
-								Console.Write("\"desktops\":[");
-								string comma = "";
-								for (int i = 0; i < desktopCount; i++)
-								{
-									Console.Write(comma+"{");
-									Console.Write("\"name\":"+serializer.Serialize(VirtualDesktop.Desktop.DesktopNameFromIndex(i))+",");
-									Console.Write("\"visible\":");
-									
-									if (i != visibleDesktop)
-										Console.Write("false,");
-									else
-										Console.Write("true,");
-
-									Console.Write("\"wallpaper\":");
-
-									//if (string.IsNullOrEmpty(VirtualDesktop.Desktop.DesktopWallpaperFromIndex(i)))
-										Console.Write("null");
-									//else
-									//	Console.Write( serializer.Serialize(VirtualDesktop.Desktop.DesktopWallpaperFromIndex(i)) );
-									Console.Write("}");
-									comma=",";
-								}
-								Console.Write("]"); 
-								Console.WriteLine("}");
+								JSONListing();
 								break;
 
 							case "INTERACTIVE":
 							case "INT":
-
-								string argstr = "";
-								bool echo = true;
-
-								int lastDT = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current);
-								bool interactive = true;
-								try
-								{
-									bool test = Console.KeyAvailable;
-								}
-								catch
-								{
-									interactive = false;
-								}
-
-								verbose = false;
-								while (true)
-								{
-									bool cmdReady = false;
-									bool idle = true;
-
-									if (interactive)
-									{
-
-										if (Console.KeyAvailable) {
-											idle = false;
-
-											var cki = Console.ReadKey(true);
-											if (cki.Key == ConsoleKey.Escape)
-											{
-												break;
-											}
-
-											if (cki.Key == ConsoleKey.Backspace)
-											{
-
-												if (argstr != "")
-												{
-													argstr = argstr.Substring(0, argstr.Length - 1);
-												}
-												if (echo)
-												{
-													Console.Write(cki.KeyChar);
-													Console.Write(" ");
-													Console.Write(cki.KeyChar);
-												}
-												continue;
-											}
-
-
-											if (cki.Key == ConsoleKey.Enter)
-											{
-
-												cmdReady = true;
-											}
-											else
-											{
-												argstr += cki.KeyChar;
-												if (echo)
-												{
-													Console.Write(cki.KeyChar);
-												}
-												continue;
-											}
-										}
-									}
-									else
-									{
-										try {
-											string temp = Reader.ReadLine(50);
-											cmdReady = true;
-											idle = false;
-											argstr = temp;
-											
-
-										} catch (TimeoutException) {
-											 
-										}
-
-									}
-
-									if (idle)
-									{
-										int thisDT = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current);
-										if (lastDT != thisDT) {
-											Console.WriteLine("{\"visibleIndex\":" + thisDT + ",\"visible\":" + serializer.Serialize(VirtualDesktop.Desktop.DesktopNameFromIndex(thisDT)) +  ",\"count\":"+VirtualDesktop.Desktop.Count+  "}");
-											lastDT = thisDT;
-										} else {
-											System.Threading.Thread.Sleep(5);
-										}
-									}
-									else
-									{
-
-										if (cmdReady) {
-
-											if (argstr == "") {
-												continue;
-											}
-
-											if (echo&&interactive) {
-												Console.WriteLine("");
-											}
-
-											string[] splits = argstr.Split(' ');
-											argstr = "";
-											string token = splits[0].ToUpper();
-											if (token.Length > 1 && token.Substring(0, 1) == "/") {
-												token = token.Substring(1);
-											}
-											switch (token)
-											{
-												case "INTERACTIVE":// prevent recursion
-												case "INT":// prevent recursion
-
-												case "BREAK":
-												case "B":
-												case "CONTINUE":
-												case "CO":
-
-													Console.WriteLine("\n{\"error\":" + serializer.Serialize("Invalid Command:" + splits[0]) + "}");
-													continue;
-
-												case "NAMES":
-
-													int dtc = VirtualDesktop.Desktop.Count;
-													string json = "[";
-													string cma = "";
-													for (int i = 0; i < dtc; i++)
-													{
-														json += cma + serializer.Serialize(VirtualDesktop.Desktop.DesktopNameFromIndex(i));
-														cma = ",";
-													}
-													json += "]";
-													Console.WriteLine(json);
-													continue;
-
-												case "LEFT":
-												case "P":
-												case "PREVIOUS":
-
-													if (lastDT == 0)
-													{
-														token = "GCD";
-													}
-													else
-													{
-														token = "L";
-													}
-													splits = token.Split(' ');
-													lastDT = -1;
-													break;
-
-												case "L":
-
-													if (lastDT == 0)
-													{
-														token = "GCD";
-														splits = token.Split(' ');
-													}
-													lastDT = -1;
-													break;
-
-												case "RIGHT":
-												case "NEXT":
-
-													if (lastDT == VirtualDesktop.Desktop.Count - 1)
-													{
-														token = "GCD";
-													}
-													else
-													{
-														token = "RI";
-													}
-													splits = token.Split(' ');
-													lastDT = -1;
-													break;
-
-												case "RI":
-
-													if (lastDT == VirtualDesktop.Desktop.Count - 1)
-													{
-														token = "GCD";
-														splits = token.Split(' ');
-													}
-													lastDT = -1;
-													break;
-
-												case "GCD":
-												case "GETCURRENTDESKTOP":
-
-													lastDT = -1;// force a reporting of the desktop
-
-													break;
-
-											}
-
-											if (((token.Length >= 7) && (token.Substring(0, 7) == "SWITCH:")) ||
-												((token.Length >= 2) && (token.Substring(0, 2) == "S:"))) {
-												lastDT = -1;// force a reporting of the desktop, even if the switched to desktop is the same as the current desktop
-											}
-
-											Main(splits);
-
-											switch (token)
-											{
-												case "NEW":
-												case "N":
-													Main(("S:" + rc).Split(' '));
-													break;
-											}
-											
-											 Console.Out.Flush();
-
-										}
-									}
-								}
-
-						
-
-
-						break;
+								InteractiveMode();
+								break;
 
 
 							case "GETCURRENTDESKTOP": // get number of current desktop and display desktop name
@@ -1206,16 +967,16 @@ namespace VDeskTool
 
 							case "NAME": // removing name of desktop in rc
 							case "NA":
-									try
-									{ // remove desktop name
-										VirtualDesktop.Desktop.FromIndex(rc).SetName("");
-										if (verbose) Console.WriteLine("Removed name of desktop number " + rc.ToString());
-									}
-									catch
-									{ // error while removing name
-										if (verbose) Console.WriteLine("Error removing desktop name");
-										rc = -1;
-									}
+								try
+								{ // remove desktop name
+									VirtualDesktop.Desktop.FromIndex(rc).SetName("");
+									if (verbose) Console.WriteLine("Removed name of desktop number " + rc.ToString());
+								}
+								catch
+								{ // error while removing name
+									if (verbose) Console.WriteLine("Error removing desktop name");
+									rc = -1;
+								}
 								break;
 
 							case "REMOVE": // remove desktop in rc
@@ -1312,10 +1073,10 @@ namespace VDeskTool
 						}
 					}
 					else
-					{	// parameter with value
+					{   // parameter with value
 						int iParam;
 
-						switch(groups[1].Value.ToUpper())
+						switch (groups[1].Value.ToUpper())
 						{
 							case "GETDESKTOP": // get desktop number
 							case "GD":
@@ -1341,7 +1102,7 @@ namespace VDeskTool
 									{ // no desktop found
 										if ((groups[2].Value.ToUpper() == "LAST") || (groups[2].Value.ToUpper() == "*LAST*"))
 										{ // last desktop
-											iParam = VirtualDesktop.Desktop.Count-1;
+											iParam = VirtualDesktop.Desktop.Count - 1;
 											if (verbose) Console.WriteLine("Virtual desktop number " + iParam.ToString() + " (desktop '" + VirtualDesktop.Desktop.DesktopNameFromIndex(iParam) + "') selected");
 											rc = iParam;
 										}
@@ -1394,7 +1155,7 @@ namespace VDeskTool
 									{ // no desktop found
 										if ((groups[2].Value.ToUpper() == "LAST") || (groups[2].Value.ToUpper() == "*LAST*"))
 										{ // last desktop
-											iParam = VirtualDesktop.Desktop.Count-1;
+											iParam = VirtualDesktop.Desktop.Count - 1;
 											if (VirtualDesktop.Desktop.FromIndex(iParam).IsVisible)
 											{
 												if (verbose) Console.WriteLine("Virtual desktop number " + iParam.ToString() + " (desktop '" + VirtualDesktop.Desktop.DesktopNameFromIndex(iParam) + "') is visible");
@@ -1417,16 +1178,16 @@ namespace VDeskTool
 
 							case "NAME": // set name of desktop in rc
 							case "NA":
-									try
-									{ // set desktop name
-										VirtualDesktop.Desktop.FromIndex(rc).SetName(groups[2].Value);
-										if (verbose) Console.WriteLine("Set name of desktop number " + rc.ToString() + " to '" + VirtualDesktop.Desktop.DesktopNameFromIndex(rc) + "'");
-									}
-									catch
-									{ // error while setting name
-										if (verbose) Console.WriteLine("Error setting desktop name to '" + groups[2].Value + "'");
-										rc = -1;
-									}
+								try
+								{ // set desktop name
+									VirtualDesktop.Desktop.FromIndex(rc).SetName(groups[2].Value);
+									if (verbose) Console.WriteLine("Set name of desktop number " + rc.ToString() + " to '" + VirtualDesktop.Desktop.DesktopNameFromIndex(rc) + "'");
+								}
+								catch
+								{ // error while setting name
+									if (verbose) Console.WriteLine("Error setting desktop name to '" + groups[2].Value + "'");
+									rc = -1;
+								}
 								break;
 
 							case "SWITCH": // switch to desktop
@@ -1469,7 +1230,7 @@ namespace VDeskTool
 									{ // no desktop found
 										if ((groups[2].Value.ToUpper() == "LAST") || (groups[2].Value.ToUpper() == "*LAST*"))
 										{ // last desktop
-											iParam = VirtualDesktop.Desktop.Count-1;
+											iParam = VirtualDesktop.Desktop.Count - 1;
 											if (verbose) Console.WriteLine("Switching to virtual desktop number " + iParam.ToString() + " (desktop '" + VirtualDesktop.Desktop.DesktopNameFromIndex(iParam) + "')");
 											rc = iParam;
 											try
@@ -1530,7 +1291,7 @@ namespace VDeskTool
 									{ // no desktop found
 										if ((groups[2].Value.ToUpper() == "LAST") || (groups[2].Value.ToUpper() == "*LAST*"))
 										{ // last desktop
-											iParam = VirtualDesktop.Desktop.Count-1;
+											iParam = VirtualDesktop.Desktop.Count - 1;
 											if (verbose) Console.WriteLine("Removing virtual desktop number " + iParam.ToString() + " (desktop '" + VirtualDesktop.Desktop.DesktopNameFromIndex(iParam) + "')");
 											rc = iParam;
 											try
@@ -1598,7 +1359,7 @@ namespace VDeskTool
 										{ // no desktop found
 											if ((groups[2].Value.ToUpper() == "LAST") || (groups[2].Value.ToUpper() == "*LAST*"))
 											{ // last desktop
-												iParam = VirtualDesktop.Desktop.Count-1;
+												iParam = VirtualDesktop.Desktop.Count - 1;
 												if (rc == iParam)
 												{
 													if (verbose) Console.WriteLine("Cannot swap virtual desktop with itself");
@@ -1675,7 +1436,7 @@ namespace VDeskTool
 										{ // no desktop found
 											if ((groups[2].Value.ToUpper() == "LAST") || (groups[2].Value.ToUpper() == "*LAST*"))
 											{ // last desktop
-												iParam = VirtualDesktop.Desktop.Count-1;
+												iParam = VirtualDesktop.Desktop.Count - 1;
 												if (rc == iParam)
 												{
 													if (verbose) Console.WriteLine("Cannot insert virtual desktop before itself");
@@ -1752,7 +1513,7 @@ namespace VDeskTool
 										{ // no desktop found
 											if ((groups[2].Value.ToUpper() == "LAST") || (groups[2].Value.ToUpper() == "*LAST*"))
 											{ // last desktop
-												iParam = VirtualDesktop.Desktop.Count-1;
+												iParam = VirtualDesktop.Desktop.Count - 1;
 												if (rc == iParam)
 												{
 													if (verbose) Console.WriteLine("Cannot move to same virtual desktop");
@@ -1822,7 +1583,7 @@ namespace VDeskTool
 									{ // no desktop found
 										if ((groups[2].Value.ToUpper() == "LAST") || (groups[2].Value.ToUpper() == "*LAST*"))
 										{ // last desktop
-											iParam = VirtualDesktop.Desktop.Count-1;
+											iParam = VirtualDesktop.Desktop.Count - 1;
 											if (verbose) Console.WriteLine("Listing window handles of windows on virtual desktop number " + iParam.ToString() + " (desktop '" + VirtualDesktop.Desktop.DesktopNameFromIndex(iParam) + "')");
 											try
 											{ // list window handles on desktop iParam
@@ -1883,7 +1644,7 @@ namespace VDeskTool
 									{ // no desktop found
 										if ((groups[2].Value.ToUpper() == "LAST") || (groups[2].Value.ToUpper() == "*LAST*"))
 										{ // last desktop
-											iParam = VirtualDesktop.Desktop.Count-1;
+											iParam = VirtualDesktop.Desktop.Count - 1;
 											if (verbose) Console.WriteLine("Closing windows on virtual desktop number " + iParam.ToString() + " (desktop '" + VirtualDesktop.Desktop.DesktopNameFromIndex(iParam) + "')");
 											try
 											{ // close windows on desktop iParam
@@ -2605,6 +2366,280 @@ namespace VDeskTool
 			return rc;
 		}
 
+		static int InteractiveMode()
+		{
+
+			var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+
+			string argstr = "";
+			bool echo = true;
+
+			int lastDT = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current);
+			bool interactive = true;
+			try
+			{
+				bool test = Console.KeyAvailable;
+			}
+			catch
+			{
+				interactive = false;
+			}
+
+			verbose = false;
+			while (true)
+			{
+				bool cmdReady = false;
+				bool idle = true;
+
+				if (interactive)
+				{
+
+					if (Console.KeyAvailable)
+					{
+						idle = false;
+
+						var cki = Console.ReadKey(true);
+						if (cki.Key == ConsoleKey.Escape)
+						{
+							break;
+						}
+
+						if (cki.Key == ConsoleKey.Backspace)
+						{
+
+							if (argstr != "")
+							{
+								argstr = argstr.Substring(0, argstr.Length - 1);
+							}
+							if (echo)
+							{
+								Console.Write(cki.KeyChar);
+								Console.Write(" ");
+								Console.Write(cki.KeyChar);
+							}
+							continue;
+						}
+
+
+						if (cki.Key == ConsoleKey.Enter)
+						{
+
+							cmdReady = true;
+						}
+						else
+						{
+							argstr += cki.KeyChar;
+							if (echo)
+							{
+								Console.Write(cki.KeyChar);
+							}
+							continue;
+						}
+					}
+				}
+				else
+				{
+					try
+					{
+						string temp = Reader.ReadLine(50);
+						cmdReady = true;
+						idle = false;
+						argstr = temp;
+
+
+					}
+					catch (TimeoutException)
+					{
+
+					}
+
+				}
+
+				if (idle)
+				{
+					int thisDT = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current);
+					if (lastDT != thisDT)
+					{
+						Console.WriteLine("{\"visibleIndex\":" + thisDT + ",\"visible\":" + serializer.Serialize(VirtualDesktop.Desktop.DesktopNameFromIndex(thisDT)) + ",\"count\":" + VirtualDesktop.Desktop.Count + "}");
+						lastDT = thisDT;
+					}
+					else
+					{
+						System.Threading.Thread.Sleep(5);
+					}
+				}
+				else
+				{
+
+					if (cmdReady)
+					{
+
+						if (argstr == "")
+						{
+							continue;
+						}
+
+						if (echo && interactive)
+						{
+							Console.WriteLine("");
+						}
+
+						string[] splits = argstr.Split(' ');
+						argstr = "";
+						string token = splits[0].ToUpper();
+						if (token.Length > 1 && token.Substring(0, 1) == "/")
+						{
+							token = token.Substring(1);
+						}
+						switch (token)
+						{
+							case "INTERACTIVE":// prevent recursion
+							case "INT":// prevent recursion
+
+							case "BREAK":
+							case "B":
+							case "CONTINUE":
+							case "CO":
+
+								Console.WriteLine("\n{\"error\":" + serializer.Serialize("Invalid Command:" + splits[0]) + "}");
+								continue;
+
+							case "NAMES":
+
+								int dtc = VirtualDesktop.Desktop.Count;
+								string json = "[";
+								string cma = "";
+								for (int i = 0; i < dtc; i++)
+								{
+									json += cma + serializer.Serialize(VirtualDesktop.Desktop.DesktopNameFromIndex(i));
+									cma = ",";
+								}
+								json += "]";
+								Console.WriteLine(json);
+								continue;
+
+							case "LEFT":
+							case "P":
+							case "PREVIOUS":
+
+								if (lastDT == 0)
+								{
+									token = "GCD";
+								}
+								else
+								{
+									token = "L";
+								}
+								splits = token.Split(' ');
+								lastDT = -1;
+								break;
+
+							case "L":
+
+								if (lastDT == 0)
+								{
+									token = "GCD";
+									splits = token.Split(' ');
+								}
+								lastDT = -1;
+								break;
+
+							case "RIGHT":
+							case "NEXT":
+
+								if (lastDT == VirtualDesktop.Desktop.Count - 1)
+								{
+									token = "GCD";
+								}
+								else
+								{
+									token = "RI";
+								}
+								splits = token.Split(' ');
+								lastDT = -1;
+								break;
+
+							case "RI":
+
+								if (lastDT == VirtualDesktop.Desktop.Count - 1)
+								{
+									token = "GCD";
+									splits = token.Split(' ');
+								}
+								lastDT = -1;
+								break;
+
+							case "GCD":
+							case "GETCURRENTDESKTOP":
+
+								lastDT = -1;// force a reporting of the desktop
+
+								break;
+
+						}
+
+						if (((token.Length >= 7) && (token.Substring(0, 7) == "SWITCH:")) ||
+							((token.Length >= 2) && (token.Substring(0, 2) == "S:")))
+						{
+							lastDT = -1;// force a reporting of the desktop, even if the switched to desktop is the same as the current desktop
+						}
+
+						Main(splits);
+
+						switch (token)
+						{
+							case "NEW":
+							case "N":
+								Main(("S:" + rc).Split(' '));
+								break;
+						}
+
+						Console.Out.Flush();
+
+					}
+				}
+			}
+			return 0;
+
+		}
+
+		static int JSONListing()
+		{
+			var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+
+			int desktopCount = VirtualDesktop.Desktop.Count;
+			int visibleDesktop = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current);
+
+
+			Console.Write("{");
+			Console.Write("\"count\":" + desktopCount + ",");
+			Console.Write("\"desktops\":[");
+			string comma = "";
+			for (int i = 0; i < desktopCount; i++)
+			{
+				Console.Write(comma + "{");
+				Console.Write("\"name\":" + serializer.Serialize(VirtualDesktop.Desktop.DesktopNameFromIndex(i)) + ",");
+				Console.Write("\"visible\":");
+
+				if (i != visibleDesktop)
+					Console.Write("false,");
+				else
+					Console.Write("true,");
+
+				Console.Write("\"wallpaper\":");
+
+				//if (string.IsNullOrEmpty(VirtualDesktop.Desktop.DesktopWallpaperFromIndex(i)))
+				Console.Write("null");
+				//else
+				//	Console.Write( serializer.Serialize(VirtualDesktop.Desktop.DesktopWallpaperFromIndex(i)) );
+				Console.Write("}");
+				comma = ",";
+			}
+			Console.Write("]");
+			Console.WriteLine("}");
+			return 0;
+		}
+
 		static int GetMainWindowHandle(string ProcessName)
 		{ // retrieve main window handle to process name
 			System.Diagnostics.Process[] processes = System.Diagnostics.Process.GetProcessesByName(ProcessName);
@@ -2629,10 +2664,10 @@ namespace VDeskTool
 		[return: MarshalAs(UnmanagedType.Bool)]
 		private static extern bool IsWindowVisible(IntPtr hWnd);
 
-		[DllImport("user32.dll", CharSet=CharSet.Auto, SetLastError=true)]
+		[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
 		private static extern bool EnumDesktopWindows(IntPtr hDesktop, EnumDelegate lpEnumCallbackFunction, IntPtr lParam);
 
-		[DllImport("user32.dll", CharSet=CharSet.Auto, SetLastError=true)]
+		[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
 		private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpWindowText, int nMaxCount);
 
 		const int MAXTITLE = 255;
@@ -2683,7 +2718,8 @@ namespace VDeskTool
 
 		private static bool EnumWindowsProcToList(IntPtr hWnd, int lParam)
 		{
-			try {
+			try
+			{
 				int iDesktopIndex = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.FromWindow(hWnd));
 				if (iDesktopIndex == iListDesktop) Console.WriteLine(hWnd.ToInt32());
 			}
@@ -2704,7 +2740,8 @@ namespace VDeskTool
 
 		private static bool EnumWindowsProcToClose(IntPtr hWnd, int lParam)
 		{
-			try {
+			try
+			{
 				int iDesktopIndex = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.FromWindow(hWnd));
 				if (iDesktopIndex == iCloseDesktop) SendMessage(hWnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
 			}
@@ -2726,7 +2763,8 @@ namespace VDeskTool
 
 		private static bool EnumWindowsProcToMoveWindows(IntPtr hWnd, int lParam)
 		{
-			try {
+			try
+			{
 				int iDesktopIndex = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.FromWindow(hWnd));
 				if (iDesktopIndex == iMoveWindowsDesktop1) VirtualDesktop.Desktop.FromIndex(iMoveWindowsDesktop2).MoveWindow(hWnd);
 			}
@@ -2756,7 +2794,8 @@ namespace VDeskTool
 
 			if (!string.IsNullOrEmpty(title) && IsWindowVisible(hWnd))
 			{
-				try {
+				try
+				{
 					int iDesktopIndex = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.FromWindow(hWnd));
 					if (iDesktopIndex == iSwapDesktop1) VirtualDesktop.Desktop.FromIndex(iSwapDesktop2).MoveWindow(hWnd);
 					if (iDesktopIndex == iSwapDesktop2) VirtualDesktop.Desktop.FromIndex(iSwapDesktop1).MoveWindow(hWnd);
@@ -2798,7 +2837,8 @@ namespace VDeskTool
 
 			if (!string.IsNullOrEmpty(title) && IsWindowVisible(hWnd))
 			{
-				try {
+				try
+				{
 					int iDesktopIndex = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.FromWindow(hWnd));
 					if ((iDesktopIndex >= iInsertDesktop1) && (iDesktopIndex < iInsertDesktop2))
 						VirtualDesktop.Desktop.FromIndex(iDesktopIndex + 1).MoveWindow(hWnd);
