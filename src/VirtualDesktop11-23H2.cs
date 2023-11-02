@@ -1,6 +1,6 @@
 // Author: Markus Scholtes, 2023
 // Version 1.16, 2023-09-17
-// Version for Windows 11 Insider Canary Build 25314 and up
+// Version for Windows 11 22H2.2215 and up
 // Compile with:
 // C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe VirtualDesktop11-23H2.cs
 
@@ -13,6 +13,7 @@ using System.Threading;
 
 // set attributes
 using System.Reflection;
+using VirtualDesktop;
 
 [assembly: AssemblyTitle("Command line tool to manage virtual desktops")]
 [assembly: AssemblyDescription("Command line tool to manage virtual desktops")]
@@ -207,7 +208,8 @@ namespace VirtualDesktop
         [PreserveSig]
         int GetAdjacentDesktop(IVirtualDesktop from, int direction, out IVirtualDesktop desktop);
         void SwitchDesktop(IVirtualDesktop desktop);
-        void SwitchDesktopAndMoveForegroundView(IVirtualDesktop desktop);
+
+        //		void SwitchDesktopAndMoveForegroundView(IVirtualDesktop desktop);
         IVirtualDesktop CreateDesktop();
         void MoveDesktop(IVirtualDesktop desktop, int nIndex);
         void RemoveDesktop(IVirtualDesktop desktop, IVirtualDesktop fallback);
@@ -878,44 +880,7 @@ namespace VirtualDesktop
 
 namespace VDeskTool
 {
-    class Reader
-    {
-        private static Thread inputThread;
-        private static AutoResetEvent getInput,
-            gotInput;
-        private static string input;
-
-        static Reader()
-        {
-            getInput = new AutoResetEvent(false);
-            gotInput = new AutoResetEvent(false);
-            inputThread = new Thread(reader);
-            inputThread.IsBackground = true;
-            inputThread.Start();
-        }
-
-        private static void reader()
-        {
-            while (true)
-            {
-                getInput.WaitOne();
-                input = Console.ReadLine();
-                gotInput.Set();
-            }
-        }
-
-        // omit the parameter to read a line without a timeout
-        public static string ReadLine(int timeOutMillisecs = Timeout.Infinite)
-        {
-            getInput.Set();
-            bool success = gotInput.WaitOne(timeOutMillisecs);
-            if (success)
-                return input;
-            else
-                throw new TimeoutException("User did not provide input within the timelimit.");
-        }
-    }
-
+    /*>[reader.cs]<*/
     static class Program
     {
         static bool verbose = true;
@@ -1052,6 +1017,7 @@ namespace VDeskTool
                             case "INTERACTIVE":
                             case "INT":
                                 InteractiveMode();
+
                                 break;
 
                             case "GETCURRENTDESKTOP": // get number of current desktop and display desktop name
@@ -1059,6 +1025,7 @@ namespace VDeskTool
                                 rc = VirtualDesktop.Desktop.FromDesktop(
                                     VirtualDesktop.Desktop.Current
                                 );
+
                                 if (verbose)
                                     Console.WriteLine(
                                         "Current desktop: '"
@@ -1741,100 +1708,6 @@ namespace VDeskTool
                                         try
                                         { // activate virtual desktop iParam
                                             VirtualDesktop.Desktop.FromIndex(rc).MakeVisible();
-                                        }
-                                        catch
-                                        { // error while activating
-                                            rc = -1;
-                                        }
-                                    }
-                                    else
-                                    { // no desktop found
-                                        if (
-                                            (groups[2].Value.ToUpper() == "LAST")
-                                            || (groups[2].Value.ToUpper() == "*LAST*")
-                                        )
-                                        { // last desktop
-                                            iParam = VirtualDesktop.Desktop.Count - 1;
-                                            if (verbose)
-                                                Console.WriteLine(
-                                                    "Switching to virtual desktop number "
-                                                        + iParam.ToString()
-                                                        + " (desktop '"
-                                                        + VirtualDesktop.Desktop.DesktopNameFromIndex(
-                                                            iParam
-                                                        )
-                                                        + "')"
-                                                );
-                                            rc = iParam;
-                                            try
-                                            { // activate virtual desktop iParam
-                                                VirtualDesktop.Desktop.FromIndex(iParam).MakeVisible();
-                                            }
-                                            catch
-                                            { // error while activating
-                                                rc = -1;
-                                            }
-                                        }
-                                        else
-                                        { // no desktop found
-                                            if (verbose)
-                                                Console.WriteLine(
-                                                    "Could not find virtual desktop with name containing '"
-                                                        + groups[2].Value
-                                                        + "'"
-                                                );
-                                            rc = -2;
-                                        }
-                                    }
-                                }
-                                break;
-
-                                if (int.TryParse(groups[2].Value, out iParam))
-                                { // parameter is an integer, use as desktop number
-                                    if ((iParam >= 0) && (iParam < VirtualDesktop.Desktop.Count))
-                                    { // check if parameter is in range of active desktops
-                                        if (verbose)
-                                            Console.WriteLine(
-                                                "Switching to virtual desktop number "
-                                                    + iParam.ToString()
-                                                    + " (desktop '"
-                                                    + VirtualDesktop.Desktop.DesktopNameFromIndex(
-                                                        iParam
-                                                    )
-                                                    + "')"
-                                            );
-                                        rc = iParam;
-                                        try
-                                        { // activate virtual desktop iParam
-                                            VirtualDesktop.Desktop.FromIndex(iParam).MakeVisible();
-                                        }
-                                        catch
-                                        { // error while activating
-                                            rc = -1;
-                                        }
-                                    }
-                                    else
-                                        rc = -1;
-                                }
-                                else
-                                { // parameter is a string, search as part of desktop name
-                                    iParam = VirtualDesktop.Desktop.SearchDesktop(groups[2].Value);
-                                    if (iParam >= 0)
-                                    { // desktop found
-                                        if (verbose)
-                                            Console.WriteLine(
-                                                "Switching to virtual desktop number "
-                                                    + iParam.ToString()
-                                                    + " (desktop '"
-                                                    + VirtualDesktop.Desktop.DesktopNameFromIndex(
-                                                        iParam
-                                                    )
-                                                    + "')"
-                                            );
-                                        rc = iParam;
-                                        try
-                                        { // activate virtual desktop iParam
-                                            VirtualDesktop.Desktop.FromIndex(iParam).MakeVisible();
                                         }
                                         catch
                                         { // error while activating
@@ -3817,318 +3690,11 @@ namespace VDeskTool
             return rc;
         }
 
-        static int InteractiveMode()
-        {
-            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+        /*>[intmode.cs]<*/
 
-            string argstr = "";
-            bool echo = true;
+        /*>[json.cs]<*/
 
-            int lastDT = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current);
-            bool interactive = true;
-
-            sListDesktopPrefix = "[";
-            sListDesktopLine1Prefix = "";
-            sListDesktopLine2PlusPrefix = ",";
-            sListDesktopSuffix = "]";
-
-            try
-            {
-                bool test = Console.KeyAvailable;
-            }
-            catch
-            {
-                interactive = false;
-            }
-
-            verbose = false;
-            while (true)
-            {
-                bool cmdReady = false;
-                bool idle = true;
-
-                if (interactive)
-                {
-                    if (Console.KeyAvailable)
-                    {
-                        idle = false;
-
-                        var cki = Console.ReadKey(true);
-                        if (cki.Key == ConsoleKey.Escape)
-                        {
-                            break;
-                        }
-
-                        if (cki.Key == ConsoleKey.Backspace)
-                        {
-                            if (argstr != "")
-                            {
-                                argstr = argstr.Substring(0, argstr.Length - 1);
-                            }
-                            if (echo)
-                            {
-                                Console.Write(cki.KeyChar);
-                                Console.Write(" ");
-                                Console.Write(cki.KeyChar);
-                            }
-                            continue;
-                        }
-
-                        if (cki.Key == ConsoleKey.Enter)
-                        {
-                            cmdReady = true;
-                        }
-                        else
-                        {
-                            argstr += cki.KeyChar;
-                            if (echo)
-                            {
-                                Console.Write(cki.KeyChar);
-                            }
-                            continue;
-                        }
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        string temp = Reader.ReadLine(50);
-                        cmdReady = true;
-                        idle = false;
-                        argstr = temp;
-                    }
-                    catch (TimeoutException) { }
-                }
-
-                if (idle)
-                {
-                    int thisDT = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current);
-                    if (lastDT != thisDT)
-                    {
-                        Console.WriteLine(
-                            "{\"visibleIndex\":"
-                                + thisDT
-                                + ",\"visible\":"
-                                + serializer.Serialize(
-                                    VirtualDesktop.Desktop.DesktopNameFromIndex(thisDT)
-                                )
-                                + ",\"count\":"
-                                + VirtualDesktop.Desktop.Count
-                                + "}"
-                        );
-                        lastDT = thisDT;
-                    }
-                    else
-                    {
-                        System.Threading.Thread.Sleep(5);
-                    }
-                }
-                else
-                {
-                    if (cmdReady)
-                    {
-                        if (argstr == "")
-                        {
-                            continue;
-                        }
-
-                        if (echo && interactive)
-                        {
-                            Console.WriteLine("");
-                        }
-
-                        string[] splits = argstr.Split(' ');
-                        argstr = "";
-                        string token = splits[0].ToUpper();
-                        if (token.Length > 1 && token.Substring(0, 1) == "/")
-                        {
-                            token = token.Substring(1);
-                        }
-                        switch (token)
-                        {
-                            case "INTERACTIVE": // prevent recursion
-                            case "INT": // prevent recursion
-
-                            // various commands not valid in interactive mode
-                            case "QUIET":
-                            case "Q":
-                            case "VERBOSE":
-                            case "V":
-                            case "BREAK":
-                            case "B":
-                            case "CONTINUE":
-                            case "CO":
-                            case "WAITKEY":
-                            case "WK":
-
-                                Console.WriteLine(
-                                    "\n{\"error\":"
-                                        + serializer.Serialize("Invalid Command:" + splits[0])
-                                        + "}"
-                                );
-                                continue;
-
-                            case "NAMES":
-
-                                int dtc = VirtualDesktop.Desktop.Count;
-                                string json = "[";
-                                string cma = "";
-                                for (int i = 0; i < dtc; i++)
-                                {
-                                    json +=
-                                        cma
-                                        + serializer.Serialize(
-                                            VirtualDesktop.Desktop.DesktopNameFromIndex(i)
-                                        );
-                                    cma = ",";
-                                }
-                                json += "]";
-                                Console.WriteLine(json);
-                                continue;
-
-                            case "LEFT":
-                            case "P":
-                            case "PREVIOUS":
-
-                                if (lastDT == 0)
-                                {
-                                    token = "GCD";
-                                }
-                                else
-                                {
-                                    token = "L";
-                                }
-                                splits = token.Split(' ');
-                                lastDT = -1;
-                                break;
-
-                            case "L":
-
-                                if (lastDT == 0)
-                                {
-                                    token = "GCD";
-                                    splits = token.Split(' ');
-                                }
-                                lastDT = -1;
-                                break;
-
-                            case "RIGHT":
-                            case "NEXT":
-
-                                if (lastDT == VirtualDesktop.Desktop.Count - 1)
-                                {
-                                    token = "GCD";
-                                }
-                                else
-                                {
-                                    token = "RI";
-                                }
-                                splits = token.Split(' ');
-                                lastDT = -1;
-                                break;
-
-                            case "RI":
-
-                                if (lastDT == VirtualDesktop.Desktop.Count - 1)
-                                {
-                                    token = "GCD";
-                                    splits = token.Split(' ');
-                                }
-                                lastDT = -1;
-                                break;
-
-                            case "GCD":
-                            case "GETCURRENTDESKTOP":
-
-                                lastDT = -1; // force a reporting of the desktop
-
-                                break;
-                        }
-
-                        if (
-                            ((token.Length >= 7) && (token.Substring(0, 7) == "SWITCH:"))
-                            || ((token.Length >= 2) && (token.Substring(0, 2) == "S:"))
-                        )
-                        {
-                            if (splits.Length > 1)
-                            {
-                                int ix = 1;
-                                while (ix < splits.Length)
-                                {
-                                    token = token + " " + splits[ix];
-                                    ix++;
-                                }
-                                splits = "x".Split(' ');
-                                splits[0] = token;
-                            }
-                            lastDT = -1; // force a reporting of the desktop, even if the switched to desktop is the same as the current desktop
-                        }
-
-                        Main(splits);
-
-                        switch (token)
-                        {
-                            case "NEW":
-                            case "N":
-                                Main(("S:" + rc).Split(' '));
-                                break;
-                        }
-
-                        Console.Out.Flush();
-                    }
-                }
-            }
-
-            sListDesktopPrefix = "";
-            sListDesktopLine1Prefix = "";
-            sListDesktopLine2PlusPrefix = "\n";
-            sListDesktopSuffix = "";
-
-            return 0;
-        }
-
-        static int JSONListing()
-        {
-            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-
-            int desktopCount = VirtualDesktop.Desktop.Count;
-            int visibleDesktop = VirtualDesktop.Desktop.FromDesktop(VirtualDesktop.Desktop.Current);
-
-            Console.Write("{");
-            Console.Write("\"count\":" + desktopCount + ",");
-            Console.Write("\"desktops\":[");
-            string comma = "";
-            for (int i = 0; i < desktopCount; i++)
-            {
-                Console.Write(comma + "{");
-                Console.Write(
-                    "\"name\":"
-                        + serializer.Serialize(VirtualDesktop.Desktop.DesktopNameFromIndex(i))
-                        + ","
-                );
-                Console.Write("\"visible\":");
-
-                if (i != visibleDesktop)
-                    Console.Write("false,");
-                else
-                    Console.Write("true,");
-
-                Console.Write("\"wallpaper\":");
-
-                //if (string.IsNullOrEmpty(VirtualDesktop.Desktop.DesktopWallpaperFromIndex(i)))
-                Console.Write("null");
-                //else
-                //	Console.Write( serializer.Serialize(VirtualDesktop.Desktop.DesktopWallpaperFromIndex(i)) );
-                Console.Write("}");
-                comma = ",";
-            }
-            Console.Write("]");
-            Console.WriteLine("}");
-            return 0;
-        }
-
-        int GetMainWindowHandle(string ProcessName)
+        static int GetMainWindowHandle(string ProcessName)
         { // retrieve main window handle to process name
             System.Diagnostics.Process[] processes = System.Diagnostics.Process.GetProcessesByName(
                 ProcessName
@@ -4350,9 +3916,7 @@ namespace VDeskTool
         {
             Console.WriteLine("VirtualDesktop.exe\t\t\t\tMarkus Scholtes, 2023, v1.16\n");
 
-            Console.WriteLine(
-                "Command line tool to manage the virtual desktops of Windows 11 Insider Canary."
-            );
+            Console.WriteLine("Command line tool to manage the virtual desktops of Windows 11.");
             Console.WriteLine(
                 "Parameters can be given as a sequence of commands. The result - most of the"
             );
