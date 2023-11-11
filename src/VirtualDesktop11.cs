@@ -3696,40 +3696,7 @@ namespace VDeskTool
             return foundHandle;
         }
 
-        private static int iListDesktop;
-        private static string sListDesktopPrefix = "";
-        private static string sListDesktopLinePrefix = "";
-        private static string sListDesktopLine1Prefix = "";
-        private static string sListDesktopLine2PlusPrefix = "\n";
-        private static string sListDesktopSuffix = "";
-
-        private static bool EnumWindowsProcToList(IntPtr hWnd, int lParam)
-        {
-            try
-            {
-                int iDesktopIndex = VirtualDesktop.Desktop.FromDesktop(
-                    VirtualDesktop.Desktop.FromWindow(hWnd)
-                );
-                if (iDesktopIndex == iListDesktop)
-                {
-                    Console.Write(sListDesktopLinePrefix + hWnd.ToInt32());
-                    sListDesktopLinePrefix = sListDesktopLine2PlusPrefix;
-                }
-            }
-            catch { }
-
-            return true;
-        }
-
-        private static void ListWindowsOnDesktop(int DesktopIndex)
-        {
-            iListDesktop = DesktopIndex;
-            EnumDelegate enumfunc = new EnumDelegate(EnumWindowsProcToList);
-            Console.Write(sListDesktopPrefix);
-            sListDesktopLinePrefix = sListDesktopLine1Prefix;
-            EnumDesktopWindows(IntPtr.Zero, enumfunc, IntPtr.Zero);
-            Console.WriteLine(sListDesktopSuffix);
-        }
+        /*>[ListWindowsOnDesktop.txt]<*/
 
         private static int iCloseDesktop;
 
