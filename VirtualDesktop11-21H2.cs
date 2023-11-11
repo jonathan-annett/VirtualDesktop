@@ -923,7 +923,6 @@ namespace VDeskTool
                 { // reset return code if on error
                     if (rc < 0)
                         rc = 0;
-
                     if (groups[2].Value == "")
                     { // parameter without value
                         string upperToken = groups[1].Value.ToUpper();
@@ -1036,7 +1035,6 @@ namespace VDeskTool
                                 rc = VirtualDesktop.Desktop.FromDesktop(
                                     VirtualDesktop.Desktop.Current
                                 );
-
                                 if (verbose)
                                     Console.WriteLine(
                                         "Current desktop: '"
@@ -1338,6 +1336,7 @@ namespace VDeskTool
                                     rc = -1;
                                 }
                                 break;
+
                             case "CLOSEWINDOWSONDESKTOP": // close windows shown on desktop in rc
                             case "CWOD":
                                 if (verbose)

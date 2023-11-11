@@ -2441,7 +2441,6 @@ namespace VDeskTool
                                     }
                                 }
                                 break;
-
                             case "CLOSEWINDOWSONDESKTOP": // close windows shown on desktop
                             case "CWOD":
                                 if (int.TryParse(groups[2].Value, out iParam))

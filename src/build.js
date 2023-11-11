@@ -9,9 +9,6 @@ const cs_data  = cs_paths.map(function(fn){return fs.readFileSync(fn,'utf8')});
 const txt_data  = txt_paths.map(function(fn){return fs.readFileSync(fn,'utf8')});
 const cs_outpaths = cs_files.map(function(fn){ return path.join(__dirname,'..',fn)});
 
-
-console.log({cs_files,cs_paths,cs_outpaths});
-
 const dir = {};
 
 cs_files.forEach(function (fn,index){

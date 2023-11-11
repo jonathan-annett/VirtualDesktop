@@ -948,7 +948,6 @@ namespace VDeskTool
                 { // reset return code if on error
                     if (rc < 0)
                         rc = 0;
-
                     if (groups[2].Value == "")
                     { // parameter without value
                         string upperToken = groups[1].Value.ToUpper();
@@ -1054,7 +1053,6 @@ namespace VDeskTool
                             case "INTERACTIVE":
                             case "INT":
                                 InteractiveMode();
-
                                 break;
 
                             case "GETCURRENTDESKTOP": // get number of current desktop and display desktop name
@@ -1062,7 +1060,6 @@ namespace VDeskTool
                                 rc = VirtualDesktop.Desktop.FromDesktop(
                                     VirtualDesktop.Desktop.Current
                                 );
-
                                 if (verbose)
                                     Console.WriteLine(
                                         "Current desktop: '"
