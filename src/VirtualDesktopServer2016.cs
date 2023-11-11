@@ -745,69 +745,14 @@ namespace VirtualDesktop
             }
         }
 
-        // prepare callback function for window enumeration
-        private delegate bool CallBackPtr(int hwnd, int lParam);
-        private static CallBackPtr callBackPtr = Callback;
-
-        // list of window informations
-        private static List<WindowInformation> WindowInformationList =
-            new List<WindowInformation>();
-
-        // enumerate windows
-        [DllImport("User32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool EnumWindows(CallBackPtr lpEnumFunc, IntPtr lParam);
-
-        // get window title length
-        [DllImport("User32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern int GetWindowTextLength(IntPtr hWnd);
-
-        // get window title
-        [DllImport("User32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
-
-        // callback function for window enumeration
-        private static bool Callback(int hWnd, int lparam)
-        {
-            int length = GetWindowTextLength((IntPtr)hWnd);
-            if (length > 0)
-            {
-                StringBuilder sb = new StringBuilder(length + 1);
-                if (GetWindowText((IntPtr)hWnd, sb, sb.Capacity) > 0)
-                {
-                    WindowInformationList.Add(
-                        new WindowInformation { Handle = hWnd, Title = sb.ToString() }
-                    );
-                }
-            }
-            return true;
-        }
-
-        // get list of all windows with title
-        public static List<WindowInformation> GetWindows()
-        {
-            WindowInformationList = new List<WindowInformation>();
-            EnumWindows(callBackPtr, IntPtr.Zero);
-            return WindowInformationList;
-        }
-
-        // find first window with string in title
-        public static WindowInformation FindWindow(string WindowTitle)
-        {
-            WindowInformationList = new List<WindowInformation>();
-            EnumWindows(callBackPtr, IntPtr.Zero);
-            WindowInformation result = WindowInformationList.Find(
-                x => x.Title.IndexOf(WindowTitle, StringComparison.OrdinalIgnoreCase) >= 0
-            );
-            return result;
-        }
+        /*>[wininfo.txt]<*/
     }
     #endregion
 }
 
 namespace VDeskTool
 {
-    /*>[reader.cs]<*/
+    /*>[reader.txt]<*/
     static class Program
     {
         static bool verbose = true;
@@ -3503,9 +3448,9 @@ namespace VDeskTool
             return rc;
         }
 
-        /*>[intmode.cs]<*/
+        /*>[intmode.txt]<*/
 
-        /*>[json.cs]<*/
+        /*>[json.txt]<*/
         static int GetMainWindowHandle(string ProcessName)
         { // retrieve main window handle to process name
             System.Diagnostics.Process[] processes = System.Diagnostics.Process.GetProcessesByName(

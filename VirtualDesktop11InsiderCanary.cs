@@ -4128,7 +4128,7 @@ namespace VDeskTool
             return 0;
         }
 
-        int GetMainWindowHandle(string ProcessName)
+        static int GetMainWindowHandle(string ProcessName)
         { // retrieve main window handle to process name
             System.Diagnostics.Process[] processes = System.Diagnostics.Process.GetProcessesByName(
                 ProcessName
