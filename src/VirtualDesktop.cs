@@ -1242,6 +1242,18 @@ namespace VDeskTool
                                 }
                                 break;
 
+                            case "LWCOD":
+                                try
+                                { // list window handles on desktop rc
+                                    ListWindowClassesOnDesktop(rc);
+                                }
+                                catch
+                                { // error while listing
+                                    Console.WriteLine();
+                                    rc = -1;
+                                }
+                                break;
+
                             case "CLOSEWINDOWSONDESKTOP": // close windows shown on desktop in rc
                             case "CWOD":
                                 if (verbose)
@@ -2147,7 +2159,7 @@ namespace VDeskTool
                                 break;
 
                             case "LISTWINDOWSONDESKTOP": // list window handles of windows shown on desktop
-                            case "LWOD":
+                            case "LWCOD":
                                 if (int.TryParse(groups[2].Value, out iParam))
                                 { // parameter is an integer, use as desktop number
                                     if ((iParam >= 0) && (iParam < VirtualDesktop.Desktop.Count))
@@ -2164,7 +2176,7 @@ namespace VDeskTool
                                             );
                                         try
                                         { // list window handles on desktop iParam
-                                            ListWindowsOnDesktop(iParam);
+                                            ListWindowClassesOnDesktop(iParam);
                                             rc = iParam;
                                         }
                                         catch
@@ -2192,7 +2204,7 @@ namespace VDeskTool
                                             );
                                         try
                                         { // list window handles on desktop iParam
-                                            ListWindowsOnDesktop(iParam);
+                                            ListWindowClassesOnDesktop(iParam);
                                             rc = iParam;
                                         }
                                         catch
@@ -2220,7 +2232,7 @@ namespace VDeskTool
                                                 );
                                             try
                                             { // list window handles on desktop iParam
-                                                ListWindowsOnDesktop(iParam);
+                                                ListWindowClassesOnDesktop(iParam);
                                                 rc = iParam;
                                             }
                                             catch
@@ -2241,7 +2253,6 @@ namespace VDeskTool
                                     }
                                 }
                                 break;
-
                             case "CLOSEWINDOWSONDESKTOP": // close windows shown on desktop
                             case "CWOD":
                                 if (int.TryParse(groups[2].Value, out iParam))

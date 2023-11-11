@@ -1235,6 +1235,17 @@ namespace VDeskTool
                                 }
                                 break;
 
+                            case "LWCOD":
+                                try
+                                { // list window handles on desktop rc
+                                    ListWindowClassesOnDesktop(rc);
+                                }
+                                catch
+                                { // error while listing
+                                    Console.WriteLine();
+                                    rc = -1;
+                                }
+                                break;
                             case "CLOSEWINDOWSONDESKTOP": // close windows shown on desktop in rc
                             case "CWOD":
                                 if (verbose)
@@ -2268,6 +2279,101 @@ namespace VDeskTool
                                             try
                                             { // list window handles on desktop iParam
                                                 ListWindowsOnDesktop(iParam);
+                                                rc = iParam;
+                                            }
+                                            catch
+                                            { // error while listing
+                                                rc = -1;
+                                            }
+                                        }
+                                        else
+                                        { // no desktop found
+                                            if (verbose)
+                                                Console.WriteLine(
+                                                    "Could not find virtual desktop with name containing '"
+                                                        + groups[2].Value
+                                                        + "'"
+                                                );
+                                            rc = -2;
+                                        }
+                                    }
+                                }
+                                break;
+
+                            case "LWCOD":
+                                if (int.TryParse(groups[2].Value, out iParam))
+                                { // parameter is an integer, use as desktop number
+                                    if ((iParam >= 0) && (iParam < VirtualDesktop.Desktop.Count))
+                                    { // check if parameter is in range of active desktops
+                                        if (verbose)
+                                            Console.WriteLine(
+                                                "Listing handles of windows on virtual desktop number "
+                                                    + iParam.ToString()
+                                                    + " (desktop '"
+                                                    + VirtualDesktop.Desktop.DesktopNameFromIndex(
+                                                        iParam
+                                                    )
+                                                    + "')"
+                                            );
+                                        try
+                                        { // list window handles on desktop iParam
+                                            ListWindowClassesOnDesktop(iParam);
+                                            rc = iParam;
+                                        }
+                                        catch
+                                        { // error while listing
+                                            rc = -1;
+                                        }
+                                    }
+                                    else
+                                        rc = -1;
+                                }
+                                else
+                                { // parameter is a string, search as part of desktop name
+                                    iParam = VirtualDesktop.Desktop.SearchDesktop(groups[2].Value);
+                                    if (iParam >= 0)
+                                    { // desktop found
+                                        if (verbose)
+                                            Console.WriteLine(
+                                                "Listing window handles of windows on virtual desktop number "
+                                                    + iParam.ToString()
+                                                    + " (desktop '"
+                                                    + VirtualDesktop.Desktop.DesktopNameFromIndex(
+                                                        iParam
+                                                    )
+                                                    + "')"
+                                            );
+                                        try
+                                        { // list window handles on desktop iParam
+                                            ListWindowClassesOnDesktop(iParam);
+                                            rc = iParam;
+                                        }
+                                        catch
+                                        { // error while listing
+                                            rc = -1;
+                                        }
+                                    }
+                                    else
+                                    { // no desktop found
+                                        if (
+                                            (groups[2].Value.ToUpper() == "LAST")
+                                            || (groups[2].Value.ToUpper() == "*LAST*")
+                                        )
+                                        { // last desktop
+                                            iParam = VirtualDesktop.Desktop.Count - 1;
+                                            if (verbose)
+                                                Console.WriteLine(
+                                                    "Listing window handles of windows on virtual desktop number "
+                                                        + iParam.ToString()
+                                                        + " (desktop '"
+                                                        + VirtualDesktop.Desktop.DesktopNameFromIndex(
+                                                            iParam
+                                                        )
+                                                        + "')"
+                                                );
+                                            try
+                                            { // list window handles on desktop iParam
+                                                ListWindowClassesOnDesktop(iParam);
                                                 rc = iParam;
                                             }
                                             catch

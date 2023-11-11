@@ -1334,6 +1334,18 @@ namespace VDeskTool
                                 }
                                 break;
 
+                            case "LWCOD":
+                                try
+                                { // list window handles on desktop rc
+                                    ListWindowClassesOnDesktop(rc);
+                                }
+                                catch
+                                { // error while listing
+                                    Console.WriteLine();
+                                    rc = -1;
+                                }
+                                break;
+
                             case "CLOSEWINDOWSONDESKTOP": // close windows shown on desktop in rc
                             case "CWOD":
                                 if (verbose)
@@ -2239,7 +2251,7 @@ namespace VDeskTool
                                 break;
 
                             case "LISTWINDOWSONDESKTOP": // list window handles of windows shown on desktop
-                            case "LWOD":
+                            case "LWCOD":
                                 if (int.TryParse(groups[2].Value, out iParam))
                                 { // parameter is an integer, use as desktop number
                                     if ((iParam >= 0) && (iParam < VirtualDesktop.Desktop.Count))
@@ -2256,7 +2268,7 @@ namespace VDeskTool
                                             );
                                         try
                                         { // list window handles on desktop iParam
-                                            ListWindowsOnDesktop(iParam);
+                                            ListWindowClassesOnDesktop(iParam);
                                             rc = iParam;
                                         }
                                         catch
@@ -2284,7 +2296,7 @@ namespace VDeskTool
                                             );
                                         try
                                         { // list window handles on desktop iParam
-                                            ListWindowsOnDesktop(iParam);
+                                            ListWindowClassesOnDesktop(iParam);
                                             rc = iParam;
                                         }
                                         catch
@@ -2312,7 +2324,7 @@ namespace VDeskTool
                                                 );
                                             try
                                             { // list window handles on desktop iParam
-                                                ListWindowsOnDesktop(iParam);
+                                                ListWindowClassesOnDesktop(iParam);
                                                 rc = iParam;
                                             }
                                             catch
@@ -2333,7 +2345,6 @@ namespace VDeskTool
                                     }
                                 }
                                 break;
-
                             case "CLOSEWINDOWSONDESKTOP": // close windows shown on desktop
                             case "CWOD":
                                 if (int.TryParse(groups[2].Value, out iParam))
@@ -4081,6 +4092,68 @@ namespace VDeskTool
             Console.Write(sListDesktopPrefix);
             sListDesktopLinePrefix = sListDesktopLine1Prefix;
             EnumDesktopWindows(IntPtr.Zero, enumfunc, IntPtr.Zero);
+            Console.WriteLine(sListDesktopSuffix);
+        }
+
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        private static extern int GetClassName(
+            IntPtr hWnd,
+            StringBuilder lpClassName,
+            int nMaxCount
+        );
+
+        private static void ListWindowClassesOnDesktop(int DesktopIndex)
+        {
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+
+            iListDesktop = DesktopIndex;
+            //EnumDelegate enumfunc = new EnumDelegate(EnumWindowsProcToListClasses);
+            Console.Write(sListDesktopPrefix);
+            sListDesktopLinePrefix = sListDesktopLine1Prefix;
+            EnumDesktopWindows(
+                IntPtr.Zero,
+                (IntPtr hWnd, int lParam) =>
+                {
+                    try
+                    {
+                        int iDesktopIndex = VirtualDesktop.Desktop.FromDesktop(
+                            VirtualDesktop.Desktop.FromWindow(hWnd)
+                        );
+                        if (iDesktopIndex == iListDesktop)
+                        {
+                            Console.Write(sListDesktopLinePrefix + "[" + hWnd.ToInt32());
+
+                            StringBuilder sb = new StringBuilder(255 + 1);
+                            if (GetClassName((IntPtr)hWnd, sb, sb.Capacity) > 0)
+                            {
+                                // valid class names don't need anything specal to serilaize the, besides double quotes
+                                Console.Write(",\"" + sb.ToString() + "\"");
+                            }
+                            else
+                            {
+                                Console.Write(",null");
+                            }
+
+                            sb = new StringBuilder(255 + 1); // we dont' want long text here.
+                            if (GetWindowText((IntPtr)hWnd, sb, sb.Capacity) > 0)
+                            {
+                                // wrap returned name in serialize to ensure it's JSON safe
+                                Console.Write("," + serializer.Serialize(sb.ToString()) + "]");
+                            }
+                            else
+                            {
+                                Console.Write(",null]");
+                            }
+
+                            sListDesktopLinePrefix = sListDesktopLine2PlusPrefix;
+                        }
+                    }
+                    catch { }
+
+                    return true;
+                },
+                IntPtr.Zero
+            );
             Console.WriteLine(sListDesktopSuffix);
         }
 
